@@ -1,36 +1,22 @@
 FROM python:3.9-slim
 
-WORKDIR /data
+WORKDIR /app
 
-# Создаем непривилегированного пользователя для запуска приложения
-RUN useradd -m -u 1000 botuser
-
-# Копируем файлы зависимостей
+# Копируем зависимости
 COPY requirements.txt .
 
 # Устанавливаем зависимости
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем все файлы приложения
+# Копируем исходный код
 COPY . .
 
-# Устанавливаем права на всю директорию /app для botuser
-RUN chown -R botuser:botuser /data
+# Создаем директорию для данных
+RUN mkdir -p /data && chmod 755 /data
 
-
-
-# Путь к файлу базы данных (можно переопределить переменной окружения)
-DATABASE_DIR=/data
-DATABASE_FILE=/data/database.json
-
-# Переключаемся на непривилегированного пользователя
-USER botuser
-
-
+# Устанавливаем переменные окружения по умолчанию
+ENV DATABASE_DIR=/data
+ENV DATABASE_FILE=/data/database.json
 
 # Запускаем бота
 CMD ["python", "bot.py"]
-
-
-
-
