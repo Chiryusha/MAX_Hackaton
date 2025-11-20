@@ -6,13 +6,12 @@ services:
     container_name: vseznayka_bot
     restart: unless-stopped
     volumes:
-      - railway_data:/data
+      - ./data:/data  # Монтируем локальную папку data
+      - ./database.json:/data/database.json  # Монтируем конкретно твой файл
     environment:
       - PYTHONUNBUFFERED=1
       - DATABASE_DIR=/data
       - DATABASE_FILE=/data/database.json
 
-volumes:
-  railway_data:
 
 
