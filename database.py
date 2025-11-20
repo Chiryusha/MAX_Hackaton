@@ -1,6 +1,7 @@
 """Модуль для работы с базой данных пользователей и мероприятий"""
 import json
 import os
+import shutil
 from datetime import datetime
 from typing import Optional, List, Dict
 
@@ -14,14 +15,22 @@ class Database:
     def __init__(self):
         self.db_file = DB_FILE
         self.db_dir = DB_DIR
+        print(f"📁 Используется база данных: {self.db_file}")
         self._ensure_db_exists()
     
     def _ensure_db_exists(self):
         """Создает файл базы данных, если его нет"""
         try:
             os.makedirs(self.db_dir, exist_ok=True, mode=0o755)
+            print(f"✅ Директория {self.db_dir} готова")
         except Exception as e:
             print(f"⚠️ Не удалось создать директорию {self.db_dir}: {e}")
+        
+        # Если файла БД нет, но есть database.json в корне - копируем
+        if not os.path.exists(self.db_file) and os.path.exists('database.json'):
+            print("🔄 Копируем database.json из корня...")
+            shutil.copy2('database.json', self.db_file)
+            print(f"✅ database.json скопирован в {self.db_file}")
         
         if not os.path.exists(self.db_file):
             try:
@@ -32,6 +41,14 @@ class Database:
                 print(f"✅ Создана новая база данных: {self.db_file}")
             except Exception as e:
                 print(f"❌ Ошибка создания БД: {e}")
+        else:
+            print(f"✅ База данных уже существует: {self.db_file}")
+            
+            # Логируем что в БД
+            db = self._load_db()
+            events_count = len(db.get('events', []))
+            users_count = len(db.get('users', {}))
+            print(f"📊 В БД: {events_count} мероприятий, {users_count} пользователей")
     
     def _load_db(self) -> dict:
         """Загружает данные из файла"""
@@ -158,5 +175,6 @@ class Database:
             if event:
                 events.append(event)
         return events
+
 
 
