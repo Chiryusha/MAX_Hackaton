@@ -13,8 +13,8 @@ build
 .vscode
 .idea
 *.log
-database.json
 myenv
 venv
 env
+
 
