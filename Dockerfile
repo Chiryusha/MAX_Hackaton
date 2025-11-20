@@ -1,6 +1,6 @@
 FROM python:3.9-slim
 
-WORKDIR /app
+WORKDIR /data
 
 # Создаем непривилегированного пользователя для запуска приложения
 RUN useradd -m -u 1000 botuser
@@ -30,5 +30,6 @@ USER botuser
 
 # Запускаем бота
 CMD ["python", "bot.py"]
+
 
 
