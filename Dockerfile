@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Устанавливаем права на всю директорию /app для botuser
-RUN chown -R botuser:botuser /app
+RUN chown -R botuser:botuser /data
 
 
 
@@ -30,6 +30,7 @@ USER botuser
 
 # Запускаем бота
 CMD ["python", "bot.py"]
+
 
 
 
