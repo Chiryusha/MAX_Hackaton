@@ -6,9 +6,13 @@ services:
     container_name: vseznayka_bot
     restart: unless-stopped
     volumes:
-      - ./data:/app/data
+      - railway_data:/data
     environment:
       - PYTHONUNBUFFERED=1
-      - DATABASE_FILE=/app/data/database.json
-      - DATABASE_DIR=/app/data
+      - DATABASE_DIR=/data
+      - DATABASE_FILE=/data/database.json
+
+volumes:
+  railway_data:
+
 
