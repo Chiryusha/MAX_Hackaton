@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: vseznayka_bot
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_FILE=/app/data/database.json
+      - DATABASE_DIR=/app/data
+
