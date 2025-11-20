@@ -14,9 +14,6 @@ COPY . .
 # Создаем директорию для данных
 RUN mkdir -p /data && chmod 755 /data
 
-# Копируем database.json в рабочую директорию (на всякий случай)
-COPY database.json /app/database.json
-
 # Устанавливаем переменные окружения
 ENV DATABASE_DIR=/data
 ENV DATABASE_FILE=/data/database.json
