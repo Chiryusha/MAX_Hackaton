@@ -20,8 +20,8 @@ RUN chown -R botuser:botuser /app
 
 
 # Путь к файлу базы данных (можно переопределить переменной окружения)
-ENV DATABASE_DIR=/app
-ENV DATABASE_FILE=/app/database.json
+DATABASE_DIR=/data
+DATABASE_FILE=/data/database.json
 
 # Переключаемся на непривилегированного пользователя
 USER botuser
@@ -30,4 +30,5 @@ USER botuser
 
 # Запускаем бота
 CMD ["python", "bot.py"]
+
 
