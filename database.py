@@ -4,82 +4,56 @@ import os
 from datetime import datetime
 from typing import Optional, List, Dict
 
-DEFAULT_DB_DIR = os.environ.get('DATABASE_DIR', 'data')
-DEFAULT_DB_FILE = os.environ.get('DATABASE_FILE')
-
-if not DEFAULT_DB_FILE:
-    candidate_file = None
-    if DEFAULT_DB_DIR:
-        candidate_file = os.path.join(DEFAULT_DB_DIR, 'database.json')
-
-    legacy_file = 'database.json'
-    if os.path.exists(legacy_file):
-        DEFAULT_DB_FILE = legacy_file
-    elif candidate_file:
-        DEFAULT_DB_FILE = candidate_file
-    else:
-        DEFAULT_DB_FILE = 'database.json'
-
-DB_FILE = os.path.normpath(DEFAULT_DB_FILE)
-
+# Используем переменные окружения Railway
+DB_DIR = os.environ.get('DATABASE_DIR', '/data')
+DB_FILE = os.environ.get('DATABASE_FILE', os.path.join(DB_DIR, 'database.json'))
 
 class Database:
     """Класс для работы с базой данных (JSON файл)"""
     
     def __init__(self):
         self.db_file = DB_FILE
+        self.db_dir = DB_DIR
         self._ensure_db_exists()
     
     def _ensure_db_exists(self):
         """Создает файл базы данных, если его нет"""
-        db_dir = os.path.dirname(self.db_file)
-        if db_dir:
-            try:
-                os.makedirs(db_dir, exist_ok=True, mode=0o755)
-            except PermissionError:
-                raise PermissionError(
-                    f"Нет прав на создание директории {db_dir}. "
-                    f"Убедитесь, что директория существует и имеет права на запись."
-                )
+        try:
+            os.makedirs(self.db_dir, exist_ok=True, mode=0o755)
+        except Exception as e:
+            print(f"⚠️ Не удалось создать директорию {self.db_dir}: {e}")
+        
         if not os.path.exists(self.db_file):
             try:
                 self._save_db({
                     'users': {},
                     'events': []
                 })
-            except PermissionError:
-                raise PermissionError(
-                    f"Нет прав на запись в файл {self.db_file}. "
-                    f"Проверьте права доступа к файлу/директории."
-                )
+                print(f"✅ Создана новая база данных: {self.db_file}")
+            except Exception as e:
+                print(f"❌ Ошибка создания БД: {e}")
     
     def _load_db(self) -> dict:
         """Загружает данные из файла"""
         try:
             with open(self.db_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
+                data = json.load(f)
+                print(f"✅ База данных загружена из {self.db_file}")
+                return data
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            print(f"⚠️ Ошибка загрузки БД, создаем новую: {e}")
             return {'users': {}, 'events': []}
     
     def _save_db(self, data: dict):
         """Сохраняет данные в файл"""
-        db_dir = os.path.dirname(self.db_file)
-        if db_dir:
-            try:
-                os.makedirs(db_dir, exist_ok=True, mode=0o755)
-            except PermissionError as e:
-                raise PermissionError(
-                    f"Нет прав на создание/запись в директорию {db_dir}. "
-                    f"Ошибка: {e}"
-                )
         try:
             with open(self.db_file, 'w', encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
-        except PermissionError as e:
-            raise PermissionError(
-                f"Нет прав на запись в файл {self.db_file}. "
-                f"Ошибка: {e}. Проверьте права доступа."
-            )
+            print(f"✅ База данных сохранена в {self.db_file}")
+        except Exception as e:
+            print(f"❌ Ошибка сохранения БД: {e}")
+    
+    # остальные методы остаются без изменений...
     
     # Работа с пользователями
     def register_user(self, user_id: str, username: str = None, full_name: str = None) -> bool:
@@ -184,4 +158,5 @@ class Database:
             if event:
                 events.append(event)
         return events
+
 
